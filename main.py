@@ -4,10 +4,7 @@ from tkinter import ttk, messagebox
 from protocol import simulate
 
 
-# =========================================================
 # COLORS
-# =========================================================
-
 BG = "#1e1e1e"
 PANEL = "#252526"
 PANEL_2 = "#2d2d30"
@@ -20,11 +17,7 @@ ERROR = "#ff6b6b"
 WARNING = "#ffd166"
 ACCENT = "#4aa3ff"
 
-
-# =========================================================
 # MAIN WINDOW
-# =========================================================
-
 root = tk.Tk()
 
 root.title("Sliding Window Protocol Simulator")
@@ -32,11 +25,7 @@ root.geometry("1000x720")
 root.minsize(900, 650)
 root.configure(bg=BG)
 
-
-# =========================================================
 # VARIABLES
-# =========================================================
-
 protocol_var = tk.StringVar(value="Go-Back-N")
 frames_var = tk.StringVar(value="10")
 window_var = tk.StringVar(value="4")
@@ -48,11 +37,7 @@ current_frame_var = tk.StringVar(value="-")
 current_status_var = tk.StringVar(value="Ready")
 stats_var = tk.StringVar(value="Ready to start simulation")
 
-
-# =========================================================
 # SIMULATION STATE
-# =========================================================
-
 running = False
 events = []
 event_index = 0
@@ -61,11 +46,7 @@ event_index = 0
 # This allows STOP and RESET to cancel the animation.
 after_id = None
 
-
-# =========================================================
 # WINDOW CLOSE
-# =========================================================
-
 def close_app():
     global running, after_id
 
@@ -83,11 +64,7 @@ def close_app():
 
 root.protocol("WM_DELETE_WINDOW", close_app)
 
-
-# =========================================================
 # HELPER FUNCTIONS
-# =========================================================
-
 def write_log(text):
     log_text.config(state="normal")
 
@@ -131,11 +108,7 @@ def clear_log():
     log_text.delete("1.0", "end")
     log_text.config(state="disabled")
 
-
-# =========================================================
 # NETWORK VISUALIZATION
-# =========================================================
-
 def draw_network(frame=None, status="Ready"):
 
     network_canvas.delete("all")
@@ -274,11 +247,7 @@ def draw_network(frame=None, status="Ready"):
         font=("Arial", 12, "bold")
     )
 
-
-# =========================================================
 # START SIMULATION
-# =========================================================
-
 def start_simulation():
 
     global running
@@ -288,10 +257,8 @@ def start_simulation():
 
     if running:
         return
-
-    # -----------------------------------------------------
+    
     # Validate inputs
-    # -----------------------------------------------------
 
     try:
         total_frames = int(frames_var.get())
@@ -344,10 +311,7 @@ def start_simulation():
 
         return
 
-    # -----------------------------------------------------
     # Generate simulation
-    # -----------------------------------------------------
-
     events, summary = simulate(
         protocol_var.get(),
         total_frames,
@@ -360,10 +324,7 @@ def start_simulation():
     after_id = None
     running = True
 
-    # -----------------------------------------------------
     # Disable input controls
-    # -----------------------------------------------------
-
     set_inputs_enabled(False)
 
     start_button.config(state="disabled")
@@ -374,10 +335,7 @@ def start_simulation():
     # STOP becomes available
     stop_button.config(state="normal")
 
-    # -----------------------------------------------------
     # Reset display
-    # -----------------------------------------------------
-
     clear_log()
 
     current_frame_var.set("-")
@@ -404,11 +362,7 @@ def start_simulation():
     # Start animation
     animate_next()
 
-
-# =========================================================
 # ANIMATE NEXT EVENT
-# =========================================================
-
 def animate_next():
 
     global running
@@ -418,10 +372,7 @@ def animate_next():
     if not running:
         return
 
-    # -----------------------------------------------------
     # Simulation finished
-    # -----------------------------------------------------
-
     if event_index >= len(events):
 
         running = False
@@ -465,26 +416,17 @@ def animate_next():
 
         return
 
-    # -----------------------------------------------------
     # Get current event
-    # -----------------------------------------------------
-
     event = events[event_index]
 
     message = event["message"]
     frame = event.get("frame")
     status = event.get("status", "INFO")
 
-    # -----------------------------------------------------
     # Update log
-    # -----------------------------------------------------
-
     write_log(message)
 
-    # -----------------------------------------------------
-    # Update visualization
-    # -----------------------------------------------------
-
+    # Update visualization 
     if frame is not None:
 
         current_frame_var.set(str(frame))
@@ -493,20 +435,10 @@ def animate_next():
 
     draw_network(frame, status)
 
-    # -----------------------------------------------------
     # Move to next event
-    # -----------------------------------------------------
-
     event_index += 1
 
-    # -----------------------------------------------------
     # Schedule next animation
-    #
-    # IMPORTANT:
-    # Store the ID returned by root.after().
-    # STOP and RESET use this ID to cancel the callback.
-    # -----------------------------------------------------
-
     delay = get_delay()
 
     after_id = root.after(
@@ -514,11 +446,7 @@ def animate_next():
         animate_next
     )
 
-
-# =========================================================
 # STOP SIMULATION
-# =========================================================
-
 def stop_simulation():
 
     global running
@@ -562,11 +490,7 @@ def stop_simulation():
         "STOPPED"
     )
 
-
-# =========================================================
 # RESET SIMULATION
-# =========================================================
-
 def reset_simulation():
 
     global running
@@ -574,10 +498,7 @@ def reset_simulation():
     global event_index
     global after_id
 
-    # -----------------------------------------------------
     # Cancel scheduled animation
-    # -----------------------------------------------------
-
     if after_id is not None:
 
         try:
@@ -588,18 +509,12 @@ def reset_simulation():
 
         after_id = None
 
-    # -----------------------------------------------------
     # Reset simulation state
-    # -----------------------------------------------------
-
     running = False
     events = []
     event_index = 0
 
-    # -----------------------------------------------------
     # Restore default values
-    # -----------------------------------------------------
-
     protocol_var.set("Go-Back-N")
     frames_var.set("10")
     window_var.set("4")
@@ -607,10 +522,7 @@ def reset_simulation():
     ack_loss_var.set("10")
     speed_var.set("Normal")
 
-    # -----------------------------------------------------
     # Clear display
-    # -----------------------------------------------------
-
     current_frame_var.set("-")
     current_status_var.set("Ready")
 
@@ -623,20 +535,14 @@ def reset_simulation():
 
     draw_network()
 
-    # -----------------------------------------------------
     # Restore buttons and inputs
-    # -----------------------------------------------------
-
     start_button.config(state="normal")
     reset_button.config(state="normal")
     stop_button.config(state="disabled")
 
     set_inputs_enabled(True)
 
-
-# =========================================================
 # MAIN TITLE
-# =========================================================
 
 title_frame = tk.Frame(
     root,
@@ -671,11 +577,7 @@ subtitle_label.pack(
     pady=(2, 0)
 )
 
-
-# =========================================================
 # SETTINGS PANEL
-# =========================================================
-
 settings_frame = tk.LabelFrame(
     root,
     text="  Simulation Settings  ",
@@ -881,10 +783,7 @@ speed_combo.grid(
     pady=12
 )
 
-
-# =========================================================
 # NETWORK VISUALIZATION
-# =========================================================
 
 network_frame = tk.LabelFrame(
     root,
@@ -916,11 +815,7 @@ network_canvas.pack(
     pady=5
 )
 
-
-# =========================================================
 # CURRENT FRAME / STATUS
-# =========================================================
-
 status_frame = tk.Frame(
     network_frame,
     bg=PANEL
@@ -974,11 +869,7 @@ tk.Label(
     padx=5
 )
 
-
-# =========================================================
 # EVENT LOG
-# =========================================================
-
 log_frame = tk.LabelFrame(
     root,
     text="  Simulation Event Log  ",
@@ -1035,11 +926,7 @@ log_text.configure(
     yscrollcommand=log_scrollbar.set
 )
 
-
-# =========================================================
 # STATS
-# =========================================================
-
 stats_label = tk.Label(
     root,
     textvariable=stats_var,
@@ -1053,10 +940,7 @@ stats_label.pack(
 )
 
 
-# =========================================================
 # BUTTONS
-# =========================================================
-
 button_frame = tk.Frame(
     root,
     bg=BG
@@ -1130,19 +1014,9 @@ stop_button.pack(
     padx=8
 )
 
-
-# =========================================================
-# INITIAL DISPLAY
-# =========================================================
-
 write_log("Simulation ready.")
 write_log("Configure the settings and press START.")
 
 draw_network()
-
-
-# =========================================================
-# RUN APPLICATION
-# =========================================================
 
 root.mainloop()
